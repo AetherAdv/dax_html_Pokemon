@@ -1,0 +1,78 @@
+HTML_Pokemon_Title = 
+VAR sizeWidth = 600
+VAR sizeHeight = 100
+
+VAR NumberText = FORMAT(MAX(pokemon_import[pokedex_number]), "000")
+VAR PokeNameRaw = UPPER(MAX(pokemon_import[name])) 
+
+VAR FadeDur = 0.12
+VAR FadeStep = 0.10
+
+// Create a delimited string for the name: insert "|" between each char
+VAR NameLen = LEN(PokeNameRaw)
+VAR DelimitedName = 
+    CONCATENATEX(
+        GENERATESERIES(1, NameLen, 1),
+        MID(PokeNameRaw, [Value], 1),
+        "|"
+    )
+
+// Number as characters list (no change, can use MID directly)
+VAR NumberLen = LEN(NumberText)
+
+// Build Number tspans
+VAR NumberTspans = 
+    CONCATENATEX(
+        GENERATESERIES(1, NumberLen, 1),
+        VAR Char = MID(NumberText, [Value], 1)
+        VAR Delay = ([Value] - 1) * FadeStep
+        RETURN
+            "<tspan opacity='0'><animate attributeName='opacity' from='0' to='1' begin='" 
+            & Delay & "s' dur='" & FadeDur & "s' fill='freeze'/>"
+            & "<animate attributeName='y' from='45%' to='55%' begin='" & Delay & "s' dur='" & FadeDur & "s' fill='freeze'/>"
+            & Char & "</tspan>",
+        ""
+    )
+
+// Build Name tspans using PATHITEM on DelimitedName
+VAR NameTspans = 
+    CONCATENATEX(
+        GENERATESERIES(1, NameLen, 1),
+        VAR Char = PATHITEM(DelimitedName, [Value], TEXT)
+        VAR Delay = ([Value] - 1) * FadeStep + (NumberLen * FadeStep) + FadeStep
+        RETURN
+            "<tspan opacity='0'><animate attributeName='opacity' from='0' to='1' begin='" 
+            & Delay & "s' dur='" & FadeDur & "s' fill='freeze'/>"
+            & "<animate attributeName='y' from='45%' to='55%' begin='" & Delay & "s' dur='" & FadeDur & "s' fill='freeze'/>"
+            & Char & "</tspan>",
+        ""
+    )
+
+VAR svg = "
+<svg xmlns='http://www.w3.org/2000/svg' width='" & sizeWidth & "' height='" & sizeHeight & "' viewBox='0 0 " & sizeWidth & " " & sizeHeight & "'>
+  <style>
+    .poke-text {
+font-family: 'Consolas', monospace; /* Changed to Consolas */
+      font-size: 40px;
+      font-weight: 900;
+      fill: #575757;  /* dark gray */
+      letter-spacing: 2px;
+    }
+    .poke-number {
+font-family: 'Consolas', monospace; /* Changed to Consolas */
+      font-size: 30px;
+      font-weight: 900;
+      fill: #575757;  /* dark gray */
+      letter-spacing: 2px;
+    }
+  </style>
+  <text x='0' y='55%' class='poke-number' text-anchor='start' alignment-baseline='bottom'>
+    " & NumberTspans & "
+  </text>
+  <text x='70' y='55%' class='poke-text' text-anchor='start' alignment-baseline='bottom'>
+    " & NameTspans & "
+  </text>
+</svg>
+"
+
+RETURN "data:image/svg+xml;utf8," & svg

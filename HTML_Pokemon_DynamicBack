@@ -1,0 +1,90 @@
+HTML_Pokemon_Back = 
+VAR poketype =
+    // Get the selected Pokémon's primary type, defaulting to "Normal" if none is selected
+    SELECTEDVALUE(pokemon_import[type1], "Normal")
+
+VAR gradientStart =
+    // Choose the gradient's starting color based on the Pokémon type (official palette)
+    SWITCH(
+        TRUE(),
+        poketype = "Normal", "#A8A878",    // Muted Yellow-Gray for Normal type
+        poketype = "Fire", "#F08030",      // Orange for Fire type
+        poketype = "Water", "#6890F0",     // Medium Blue for Water type
+        poketype = "Grass", "#78C850",     // Medium Green for Grass type
+        poketype = "Electric", "#F8D030",  // Yellow for Electric type
+        poketype = "Ice", "#98D8D8",       // Cyan/Light Blue for Ice type
+        poketype = "Fighting", "#C03028",  // Red-Brown for Fighting type
+        poketype = "Poison", "#A040A0",    // Purple for Poison type
+        poketype = "Ground", "#E0C068",    // Brown-Yellow for Ground type
+        poketype = "Flying", "#A890F0",    // Light Purple-Blue for Flying type
+        poketype = "Psychic", "#F85888",   // Pink for Psychic type
+        poketype = "Bug", "#A8B820",       // Olive Green for Bug type
+        poketype = "Rock", "#B8A038",      // Brown-Gold for Rock type
+        poketype = "Ghost", "#705898",     // Dark Purple for Ghost type
+        poketype = "Dragon", "#7038F8",    // Dark Purple-Blue for Dragon type
+        poketype = "Steel", "#B8B8D0",     // Light Grey-Blue for Steel type
+        poketype = "Dark", "#705848",      // Dark Brown for Dark type
+        poketype = "Fairy", "#EE99AC",     // Light Pink for Fairy type
+        "#6bfad8"                          // Fallback color for unknown types
+    )
+
+VAR gradientEnd =
+    // Choose the gradient's ending color (a much lighter version for each type)
+    SWITCH(
+        TRUE(),
+        poketype = "Normal", "#FFFFFF",    // White for Normal type
+        poketype = "Fire", "#FFF2CC",      // Very light orange/cream for Fire type
+        poketype = "Water", "#E6F5FF",     // Very light blue for Water type
+        poketype = "Grass", "#F0FFF0",     // Honeydew (very light green) for Grass type
+        poketype = "Electric", "#FFFFE0",  // Light yellow for Electric type
+        poketype = "Ice", "#F0FFFF",       // Azure (very light cyan) for Ice type
+        poketype = "Fighting", "#FFCCCC",  // Light pink for Fighting type
+        poketype = "Poison", "#F5EEF8",    // Lavender blush for Poison type
+        poketype = "Ground", "#FFF8DC",    // Cornsilk (very light brown/yellow) for Ground type
+        poketype = "Flying", "#E6E6FA",    // Lavender for Flying type
+        poketype = "Psychic", "#FFE6F0",   // Pinkish white for Psychic type
+        poketype = "Bug", "#F5FFFA",       // Mint cream (very light greenish white) for Bug type
+        poketype = "Rock", "#F5F5DC",      // Beige for Rock type
+        poketype = "Ghost", "#F0E6FA",     // Thistle (very light purple) for Ghost type
+        poketype = "Dragon", "#E0CCFF",    // Light lavender for Dragon type
+        poketype = "Steel", "#F0F8FF",     // Alice Blue (very light blue-grey) for Steel type
+        poketype = "Dark", "#EBEBEB",      // Very light grey for Dark type
+        poketype = "Fairy", "#FFF0F5",     // Lavender blush (very light pink) for Fairy type
+        "#FFFFFF"                          // Fallback color for unknown types (white)
+    )
+
+VAR warmOffWhite = "#f2efe9" // A warm off-white color for initial gradient
+
+VAR svg =
+    // Build the SVG string with animated gradients and vignette effect
+    "<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' preserveAspectRatio='none'>" &
+    "   <defs>" &
+    "       <linearGradient id='bg-gradient' x1='0%' y1='0%' x2='100%' y2='100%'>" &
+    "           <stop offset='0%' stop-color='" & warmOffWhite & "'>" &
+    "               <animate attributeName='stop-color' values='" & warmOffWhite & ";" & gradientStart & "' dur='4s' begin='0s' fill='freeze' repeatCount='1'/>" &
+    "               <animate attributeName='stop-color' values='" & gradientStart & ";" & gradientEnd & ";" & gradientStart & "' dur='6s' begin='4s' repeatCount='indefinite'/>" &
+    "           </stop>" &
+    "           <stop offset='100%' stop-color='" & warmOffWhite & "'>" &
+    "               <animate attributeName='stop-color' values='" & warmOffWhite & ";" & gradientEnd & "' dur='4s' begin='0s' fill='freeze' repeatCount='1'/>" &
+    "               <animate attributeName='stop-color' values='" & gradientEnd & ";" & gradientStart & ";" & gradientEnd & "' dur='6s' begin='4s' repeatCount='indefinite'/>" &
+    "           </stop>" &
+    "           " &
+    "           <animate attributeName='x1' values='0%; -20%; 0%; 20%; 0%' dur='15s' repeatCount='indefinite'/>" &
+    "           <animate attributeName='y1' values='0%; -20%; 0%; 20%; 0%' dur='15s' repeatCount='indefinite'/>" &
+    "           <animate attributeName='x2' values='100%; 120%; 100%; 80%; 100%' dur='15s' repeatCount='indefinite'/>" &
+    "           <animate attributeName='y2' values='100%; 120%; 100%; 80%; 100%' dur='15s' repeatCount='indefinite'/>" &
+    "       </linearGradient>" &
+    "       <radialGradient id='vignette-gradient' cx='50%' cy='50%' r='75%' fx='50%' fy='50%'>" &
+    "           <stop offset='0%' stop-color='black' stop-opacity='0'/>" &
+    "           <stop offset='60%' stop-color='black' stop-opacity='0'/>" &
+    "           <stop offset='80%' stop-color='575757' stop-opacity='0.02'/>" &
+    "           <stop offset='100%' stop-color='#575757' stop-opacity='0.1'/>" &
+    "       </radialGradient>" &
+    "   </defs>" &
+    "   <rect width='1920' height='1080' fill='url(#bg-gradient)'/>" &
+    "   <rect width='1920' height='1080' fill='url(#vignette-gradient)'/>" &
+    "</svg>"
+
+RETURN
+    // Output as a data URI for embedding in HTML or Power BI visuals
+    "data:image/svg+xml;utf8," & svg
